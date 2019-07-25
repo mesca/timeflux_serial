@@ -1,27 +1,40 @@
 graphs:
 
-  - nodes:
-    - id: node_1
-      module: timeflux.nodes.random
-      class: Random
+  - id: acquisition
+    nodes:
+    - id: arduino
+      module: timeflux_serial.nodes.driver
+      class: SerialDevice
       params:
-        columns: 5
-        rows_min: 1
-        rows_max: 10
-        value_min: 0
-        value_max: 5
-        seed: 1
-    - id: node_2
-      module: timeflux_example.nodes.arithmetic
-      class: Add
+        port: /dev/tty.SLAB_USBtoUART
+        rate: 1
+    - id: publish
+      module: timeflux.nodes.zmq
+      class: Pub
       params:
-        value: 1
-    - id: node_3
-      module: timeflux.nodes.debug
-      class: Display
-
+        topic: arduino
     edges:
-    - source: node_1
-      target: node_2
-    - source: node_2
-      target: node_3
+    - source: arduino
+      target: publish
+    rate: 1
+
+  # - id: display
+  #   nodes:
+  #   - id: subscribe
+  #     module: timeflux.nodes.zmq
+  #     class: Sub
+  #     params:
+  #       topics: [ arduino ]
+  #   - id: debug
+  #     module: timeflux.nodes.debug
+  #     class: Display
+  #   edges:
+  #     - source: subscribe:arduino
+  #       target: debug
+  #   rate: 1
+
+  - id: broker
+    nodes:
+    - id: broker
+      module: timeflux.nodes.zmq
+      class: Broker
