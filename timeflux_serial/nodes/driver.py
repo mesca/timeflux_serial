@@ -44,7 +44,7 @@ class SerialDevice(Node):
         # Check rate
         if not isinstance(rate, int):
             raise ValueError(f'Invalid rate: {rate}')
-
+        self._rate = rate
 
         # Sample size in bytes
         self.sample_size = 9
@@ -70,7 +70,7 @@ class SerialDevice(Node):
     def update(self):
 
         data, indices = self._read()
-        self.o.set(data, indices, ('SEQ', 'UTIME', 'A0'))
+        self.o.set(data, indices, ('SEQ', 'UTIME', 'A0'), {'rate': self._rate})
 
 
     def _connect(self, port):
